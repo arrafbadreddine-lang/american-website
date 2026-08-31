@@ -20,6 +20,7 @@ jobs:
           host: ${{ secrets.CLOUDWAYS_HOST }}
           username: ${{ secrets.CLOUDWAYS_USER }}
           key: ${{ secrets.CLOUDWAYS_SSH_KEY }}
+          password: ${{ secrets.CLOUDWAYS_PASSWORD }}
           port: 22
           script: |
             echo "🚀 Starting Deployment on Cloudways..."
