@@ -1,0 +1,8 @@
+# Cloudways Apache Entry
+DirectoryIndex index.php
+RewriteEngine On
+
+# If requested file or directory does not physically exist, forward to index.php proxy
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
