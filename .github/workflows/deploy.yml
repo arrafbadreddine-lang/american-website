@@ -27,9 +27,19 @@ jobs:
           script: |
             set -euo pipefail
 
-            # pm2 lives in the user's own npm prefix, which a
-            # non-interactive SSH session does not pick up.
+            # The system Node is 18.17.1, too old for Next 15 to build.
+            # nvm (default: 20) is installed for this user; a
+            # non-interactive SSH session does not load it on its own.
+            set +u
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            nvm use default >/dev/null 2>&1 || true
+            set -u
+
+            # pm2 lives in the user's own npm prefix, also not on PATH here.
             export PATH="$HOME/.npm-global/bin:$PATH"
+
+            echo "node $(node -v) / npm $(npm -v)"
 
             APP_DIR="${{ vars.CLOUDWAYS_APP_PATH }}"
             REPO_URL="https://github.com/arrafbadreddine-lang/american-website.git"
