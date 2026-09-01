@@ -27,6 +27,10 @@ jobs:
           script: |
             set -euo pipefail
 
+            # pm2 lives in the user's own npm prefix, which a
+            # non-interactive SSH session does not pick up.
+            export PATH="$HOME/.npm-global/bin:$PATH"
+
             APP_DIR="${{ vars.CLOUDWAYS_APP_PATH }}"
             REPO_URL="https://github.com/arrafbadreddine-lang/american-website.git"
 
@@ -70,8 +74,10 @@ jobs:
               pm2 restart forksavvyrecipes --update-env \
                 || pm2 start npm --name forksavvyrecipes -- run start
               pm2 save
+              pm2 list
             else
-              echo "WARNING: pm2 not found for this user - app was NOT restarted."
+              echo "ERROR: pm2 not found - the new build is NOT live."
+              exit 1
             fi
 
             echo "Deployment finished."
