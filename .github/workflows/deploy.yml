@@ -87,8 +87,9 @@ jobs:
 
             echo "--- Restarting app ---"
             if command -v pm2 >/dev/null 2>&1; then
-              pm2 restart forksavvyrecipes --update-env \
-                || pm2 start npm --name forksavvyrecipes -- run start
+              pm2 restart forksavvy --update-env \
+                || pm2 restart forksavvyrecipes --update-env \
+                || pm2 start npm --name "forksavvy" -- run start
               pm2 save
               pm2 list
             else
