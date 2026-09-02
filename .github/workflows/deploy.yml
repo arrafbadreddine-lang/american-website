@@ -15,86 +15,76 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # Build on the runner, not on the server. The Cloudways box cannot
+      # reach GitHub any more (GitHub returns 401 to its IP for anonymous
+      # git), and its system Node is 18.17.1 - too old for Next 15.
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.CLOUDWAYS_HOST }}
-          username: ${{ secrets.CLOUDWAYS_USER }}
-          key: ${{ secrets.CLOUDWAYS_SSH_KEY }}
-          port: 22
-          command_timeout: 20m
-          script_stop: true
-          script: |
-            set -euo pipefail
+          node-version: '20'
+          cache: 'npm'
 
-            # The system Node is 18.17.1, too old for Next 15 to build.
-            # Use the Node 20 nvm installed for this user, but do NOT source
-            # nvm.sh - it auto-activates the default version and aborts on
-            # this user's .npmrc prefix setting.
-            NODE20_BIN="$(ls -d "$HOME"/.nvm/versions/node/v20*/bin 2>/dev/null | tail -1 || true)"
-            if [ -n "$NODE20_BIN" ]; then
-              export PATH="$NODE20_BIN:$PATH"
-            fi
+      - name: Install dependencies
+        run: npm ci --include=dev
 
-            # pm2 lives in the user's own npm prefix; append so node/npm
-            # still resolve to the Node 20 install above.
-            export PATH="$PATH:$HOME/.npm-global/bin"
+      - name: Build
+        run: npm run build
 
-            echo "node $(node -v) / npm $(npm -v)"
-
-            APP_DIR="${{ vars.CLOUDWAYS_APP_PATH }}"
-            REPO_URL="https://github.com/arrafbadreddine-lang/american-website.git"
-
-            if [ -z "$APP_DIR" ]; then
-              echo "ERROR: repository variable CLOUDWAYS_APP_PATH is not set."
+      # --delete is destructive; refuse to sync a build that did not produce
+      # the standalone server the app actually runs.
+      - name: Verify the build
+        run: |
+          set -euo pipefail
+          for required in package.json .next/standalone/server.js .next/standalone/.next/static; do
+            if [ ! -e "$required" ]; then
+              echo "ERROR: '$required' missing after build - refusing to deploy."
               exit 1
             fi
+          done
+          echo "Build looks valid."
 
-            if [ ! -d "$APP_DIR" ]; then
-              echo "ERROR: $APP_DIR does not exist on the server."
-              exit 1
-            fi
+      - name: Install SSH key
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.CLOUDWAYS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
 
-            cd "$APP_DIR"
-            echo "Working directory: $(pwd)"
+      - name: Upload build to the server
+        run: |
+          set -euo pipefail
+          # public_html is owned by the application user, not the master user
+          # we connect as, so directory times/permissions cannot be set.
+          # node_modules is excluded: the standalone build carries its own,
+          # and excluding it also protects the copy already on the server.
+          rsync -az --delete --omit-dir-times --no-perms \
+            --stats --human-readable \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.gitignore' \
+            --exclude='node_modules/' \
+            -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+            ./ \
+            "${{ secrets.CLOUDWAYS_USER }}@${{ secrets.CLOUDWAYS_HOST }}:${{ vars.CLOUDWAYS_APP_PATH }}/"
 
-            # The app folder is owned by the application user, not by the
-            # master user this deploy runs as, so git needs it whitelisted.
-            git config --global --add safe.directory "$APP_DIR" || true
-            git config --global --add safe.directory "$(pwd -P)" || true
+      - name: Restart the app
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new \
+            "${{ secrets.CLOUDWAYS_USER }}@${{ secrets.CLOUDWAYS_HOST }}" \
+            'export PATH="$HOME/.npm-global/bin:$PATH"
+             if ! command -v pm2 >/dev/null 2>&1; then
+               echo "ERROR: pm2 not found - the new build is NOT live."
+               exit 1
+             fi
+             pm2 restart forksavvyrecipes --update-env
+             pm2 save
+             pm2 list'
 
-            if [ ! -d .git ]; then
-              echo "--- First run: bootstrapping git repository ---"
-              git init
-            fi
-
-            git remote remove origin 2>/dev/null || true
-            git remote add origin "$REPO_URL"
-
-            echo "--- Pulling latest code ---"
-            git fetch --depth=1 origin main
-            git reset --hard origin/main
-
-            echo "--- Installing dependencies ---"
-            if [ -f package-lock.json ]; then
-              npm ci --include=dev
-            else
-              npm install --include=dev
-            fi
-
-            echo "--- Building ---"
-            npm run build
-
-            echo "--- Restarting app ---"
-            if command -v pm2 >/dev/null 2>&1; then
-              pm2 restart forksavvy --update-env \
-                || pm2 restart forksavvyrecipes --update-env \
-                || pm2 start npm --name "forksavvy" -- run start
-              pm2 save
-              pm2 list
-            else
-              echo "ERROR: pm2 not found - the new build is NOT live."
-              exit 1
-            fi
-
-            echo "Deployment finished."
+      - name: Remove SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
