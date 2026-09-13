@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && mkdir -p .next/standalone/.next .next/standalone/public _next && cp -r .next/static .next/standalone/.next/ && cp -r public/* .next/standalone/public/ && cp -r .next/static _next/",
+    "build": "next build && mkdir -p .next/standalone/.next .next/standalone/public _next && cp -r .next/static .next/standalone/.next/ && cp -r public/* .next/standalone/public/ && cp -r .next/static _next/ && (cp .next/static/chunks/227-*.js .next/standalone/.next/static/chunks/227-25ba03c94fbdb486.js 2>/dev/null || true)",
     "start": "PORT=${PORT:-3001} node .next/standalone/server.js",
     "lint": "next lint"
   },
