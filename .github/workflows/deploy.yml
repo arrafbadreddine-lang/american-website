@@ -61,12 +61,17 @@ jobs:
           # we connect as, so directory times/permissions cannot be set.
           # node_modules is excluded: the standalone build carries its own,
           # and excluding it also protects the copy already on the server.
+          # We protect static chunks from --delete so that older hash chunks
+          # remain accessible to browsers during transition periods without 404s.
           rsync -az --delete --omit-dir-times --no-perms \
             --stats --human-readable \
             --exclude='.git/' \
             --exclude='.github/' \
             --exclude='.gitignore' \
             --exclude='node_modules/' \
+            --filter='protect _next/static/' \
+            --filter='protect .next/standalone/.next/static/' \
+            --filter='protect .next/static/' \
             -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
             ./ \
             "${{ secrets.CLOUDWAYS_USER }}@${{ secrets.CLOUDWAYS_HOST }}:${{ vars.CLOUDWAYS_APP_PATH }}/"
@@ -89,6 +94,9 @@ jobs:
              fi
              pm2 save
              pm2 list
+             echo "Purging local Varnish cache if active..."
+             curl -s -X PURGE http://127.0.0.1/ || true
+             curl -s -X PURGE -H "Host: forksavvyrecipes.com" http://127.0.0.1/ || true
              echo "Waiting 3 seconds for Next.js to bind to port 3001..."
              sleep 3
              if curl -s -f http://127.0.0.1:3001/ >/dev/null 2>&1; then

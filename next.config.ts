@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/:path*',
         headers: [
           {
             key: 'X-Content-Type-Options',
@@ -36,11 +36,32 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/static/(.*)',
+        // Hashed JS/CSS chunks are immutable and can be cached safely for 1 year
+        source: '/_next/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Recipe photo assets cached for 1 day, stale while revalidate 7 days
+        source: '/recipes/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      {
+        // HTML pages must revalidate so clients and CDNs immediately load new builds
+        source: '/:path((?!_next|recipes|api|favicon|icon|logo|robots|sitemap).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
           },
         ],
       },
