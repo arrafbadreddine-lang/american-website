@@ -65,10 +65,17 @@ export default async function RecipePage({ params }: PageProps) {
     notFound();
   }
 
-  // Related recipes in same category or appliance
-  const relatedRecipes = RECIPES.filter(
-    (r) => r.id !== recipe.id && (r.category === recipe.category || r.appliance === recipe.appliance)
-  ).slice(0, 3);
+  // Related recipes: Prioritize same copycat chain first for strong cluster linking, then category/appliance
+  const sameChain = recipe.copycatChainSlug
+    ? RECIPES.filter((r) => r.id !== recipe.id && r.copycatChainSlug === recipe.copycatChainSlug)
+    : [];
+  const sameCategoryOrAppliance = RECIPES.filter(
+    (r) =>
+      r.id !== recipe.id &&
+      !sameChain.some((c) => c.id === r.id) &&
+      (r.category === recipe.category || r.appliance === recipe.appliance)
+  );
+  const relatedRecipes = [...sameChain, ...sameCategoryOrAppliance].slice(0, 3);
 
   // Generate Google Schema JSON-LD
   const recipeJsonLd = generateRecipeJsonLd({
