@@ -41,6 +41,12 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  alternates: {
+    canonical: "https://forksavvyrecipes.com",
+    types: {
+      "application/rss+xml": "https://forksavvyrecipes.com/feed.xml",
+    },
+  },
 };
 
 export default function RootLayout({
@@ -52,6 +58,12 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://images.unsplash.com" />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="ForkSavvy Recipes RSS Feed"
+          href="https://forksavvyrecipes.com/feed.xml"
+        />
       </head>
       <body className="min-h-screen flex flex-col font-sans">
         <Navbar />
