@@ -27,18 +27,23 @@ export async function generateMetadata({
 
   if (!category) {
     return {
-      title: "Category Not Found | ForkSavvy Recipes",
+      title: "Category Not Found",
     };
   }
 
+  const canonicalUrl = `https://forksavvyrecipes.com/categories/${category.slug}`;
+
   return {
-    title: `${category.name} | ForkSavvy Recipes`,
+    title: category.name,
     description: `${category.description} Scalable ingredients, USDA-verified nutrition facts, and step-by-step cooking guides on ForkSavvyRecipes.com.`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${category.name} - ForkSavvy Recipes`,
       description: category.description,
       images: [{ url: category.heroImage }],
-      url: `https://forksavvyrecipes.com/categories/${category.slug}`,
+      url: canonicalUrl,
     },
   };
 }

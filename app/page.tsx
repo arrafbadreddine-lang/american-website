@@ -1,4 +1,5 @@
 import React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Flame,
@@ -22,11 +23,17 @@ import { CATEGORIES } from "@/data/categories";
 import RecipeCard from "@/components/RecipeCard";
 import JsonLdSchema from "@/components/JsonLdSchema";
 
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "https://forksavvyrecipes.com",
+  },
+};
+
 export default function HomePage() {
-  // Sort newest-first so new recipes automatically appear in the beginning
-  const featuredRecipes = [...RECIPES]
-    .filter((r) => r.featured)
-    .sort((a, b) => new Date(b.datePublished).getTime() - new Date(a.datePublished).getTime());
+  // Sort newest-first and include all recipes so Googlebot discovers every recipe link on the homepage
+  const featuredRecipes = [...RECIPES].sort(
+    (a, b) => new Date(b.datePublished).getTime() - new Date(a.datePublished).getTime()
+  );
 
   const copycats = getCopycatRecipes();
   const highProteinRecipes = RECIPES.filter((r) => r.dietaryTags.includes("high-protein"));

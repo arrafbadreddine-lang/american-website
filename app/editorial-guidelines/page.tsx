@@ -6,8 +6,11 @@ import { generateBreadcrumbJsonLd } from "@/lib/seo";
 import JsonLdSchema from "@/components/JsonLdSchema";
 
 export const metadata: Metadata = {
-  title: "Editorial & Recipe Testing Guidelines | ForkSavvy",
+  title: "Editorial & Recipe Testing Guidelines",
   description: "ForkSavvy's 4-step recipe development and testing protocol, USDA nutritional standards, allergen accuracy, and editorial independence policy.",
+  alternates: {
+    canonical: "https://forksavvyrecipes.com/editorial-guidelines",
+  },
 };
 
 export default function EditorialGuidelinesPage() {

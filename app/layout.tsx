@@ -42,7 +42,6 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: "https://forksavvyrecipes.com",
     types: {
       "application/rss+xml": "https://forksavvyrecipes.com/feed.xml",
     },

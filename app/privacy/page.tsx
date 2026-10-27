@@ -6,8 +6,11 @@ import { generateBreadcrumbJsonLd } from "@/lib/seo";
 import JsonLdSchema from "@/components/JsonLdSchema";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | ForkSavvy",
+  title: "Privacy Policy",
   description: "ForkSavvy's Privacy Policy explaining how we collect, use, and protect your information, compliant with CCPA, GDPR, and US privacy regulations.",
+  alternates: {
+    canonical: "https://forksavvyrecipes.com/privacy",
+  },
 };
 
 export default function PrivacyPage() {

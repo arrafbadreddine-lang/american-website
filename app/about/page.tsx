@@ -6,8 +6,11 @@ import { generateBreadcrumbJsonLd } from "@/lib/seo";
 import JsonLdSchema from "@/components/JsonLdSchema";
 
 export const metadata: Metadata = {
-  title: "About Us | ForkSavvy Recipes",
+  title: "About Us",
   description: "Learn about ForkSavvy Recipes: our mission to create fast, zero-fluff, budget-friendly American dinners tested for real weeknight home kitchens.",
+  alternates: {
+    canonical: "https://forksavvyrecipes.com/about",
+  },
   openGraph: {
     title: "About ForkSavvy Recipes - Real Food, Zero Fluff",
     description: "Our mission: fast, high-protein, budget-friendly American recipes tested in real home kitchens.",

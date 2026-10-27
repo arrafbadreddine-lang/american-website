@@ -9,11 +9,15 @@ import JsonLdSchema from "@/components/JsonLdSchema";
 import { generateBreadcrumbJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Restaurant Copycat Recipes Hub | Recreate US Favorites for 75% Less",
+  title: "Restaurant Copycat Recipes Hub — Recreate US Favorites for 75% Less",
   description: "Exact taste of Chipotle, Chick-fil-A, Panera Bread, Starbucks, and Olive Garden made at home in under 25 minutes for a fraction of the takeout price.",
+  alternates: {
+    canonical: "https://forksavvyrecipes.com/copycats",
+  },
   openGraph: {
     title: "Restaurant Copycat Hub | ForkSavvy Recipes",
     description: "Recreate your favorite American fast-casual meals at home with exact seasoning ratios and huge savings.",
+    url: "https://forksavvyrecipes.com/copycats",
   },
 };
 

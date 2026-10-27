@@ -6,8 +6,11 @@ import { generateBreadcrumbJsonLd } from "@/lib/seo";
 import JsonLdSchema from "@/components/JsonLdSchema";
 
 export const metadata: Metadata = {
-  title: "Terms of Service & Culinary Disclaimers | ForkSavvy",
+  title: "Terms of Service & Culinary Disclaimers",
   description: "Terms of Service, intellectual property policies, nutritional variance, and allergen liability disclaimers for ForkSavvy.",
+  alternates: {
+    canonical: "https://forksavvyrecipes.com/terms",
+  },
 };
 
 export default function TermsPage() {

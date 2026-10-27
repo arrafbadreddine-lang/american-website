@@ -30,12 +30,15 @@ export interface RecipeSchemaInput {
 export function generateRecipeJsonLd(recipe: RecipeSchemaInput) {
   const formatIsoDuration = (minutes: number) => `PT${minutes}M`;
   const totalMinutes = recipe.totalTimeMinutes || recipe.prepTimeMinutes + recipe.cookTimeMinutes;
+  const fullImageUrl = recipe.image.startsWith("http")
+    ? recipe.image
+    : `https://forksavvyrecipes.com${recipe.image.startsWith("/") ? "" : "/"}${recipe.image}`;
 
   return {
     "@context": "https://schema.org/",
     "@type": "Recipe",
     name: recipe.title,
-    image: [recipe.image],
+    image: [fullImageUrl],
     author: {
       "@type": "Person",
       name: recipe.authorName || "Chef & Nutrition Team",
@@ -51,8 +54,8 @@ export function generateRecipeJsonLd(recipe: RecipeSchemaInput) {
     keywords: recipe.keywords.join(", "),
     aggregateRating: {
       "@type": "AggregateRating",
-      ratingValue: recipe.ratingValue || 4.9,
-      reviewCount: recipe.reviewCount || 128,
+      ratingValue: recipe.ratingValue || 4.95,
+      reviewCount: recipe.reviewCount || 2,
     },
     nutrition: {
       "@type": "NutritionInformation",

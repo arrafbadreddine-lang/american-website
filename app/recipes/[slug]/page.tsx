@@ -22,37 +22,44 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!recipe) {
     return {
-      title: "Recipe Not Found | ForkSavvy Recipes",
+      title: "Recipe Not Found",
     };
   }
 
   const totalMinutes = recipe.prepTimeMinutes + recipe.cookTimeMinutes;
+  const canonicalUrl = `https://forksavvyrecipes.com/recipes/${recipe.slug}`;
+  const fullImageUrl = recipe.image.startsWith("http")
+    ? recipe.image
+    : `https://forksavvyrecipes.com${recipe.image}`;
 
   return {
-    title: `${recipe.title} (${totalMinutes} Min) | ForkSavvy Recipes`,
-    description: `${recipe.tagline} ${recipe.nutrition.proteinGrams}g protein, ${recipe.nutrition.calories} cal, and ready in ${totalMinutes} min for $${recipe.costPerServing.toFixed(2)}/serving on ForkSavvyRecipes.com.`,
+    title: `${recipe.title} (${totalMinutes} Min)`,
+    description: `${recipe.tagline} Full nutrition & macros: ${recipe.nutrition.calories} calories, ${recipe.nutrition.proteinGrams}g protein, ${recipe.nutrition.carbsGrams}g carbs, ${recipe.nutrition.fatGrams}g fat. Ready in ${totalMinutes} min for $${recipe.costPerServing.toFixed(2)}/serving.`,
     keywords: [
       recipe.title.toLowerCase(),
       `${recipe.appliance} recipes`,
       ...recipe.dietaryTags,
-      ...(recipe.copycatChainSlug ? [`${recipe.copycatChainSlug} copycat recipe`] : []),
+      ...(recipe.copycatChainSlug ? [`${recipe.copycatChainSlug} copycat recipe`, `${recipe.title.toLowerCase()} calories`, `${recipe.title.toLowerCase()} macros`] : []),
       "easy american dinner",
       "healthy weeknight recipe",
       "forksavvy recipes",
     ],
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${recipe.title} - Ready in ${totalMinutes} Min`,
       description: recipe.description,
-      images: [{ url: recipe.image, width: 1200, height: 630, alt: recipe.title }],
+      images: [{ url: fullImageUrl, width: 1200, height: 800, alt: recipe.title }],
       type: "article",
       publishedTime: recipe.datePublished,
-      url: `https://forksavvyrecipes.com/recipes/${recipe.slug}`,
+      url: canonicalUrl,
     },
     twitter: {
       card: "summary_large_image",
       title: recipe.title,
       description: recipe.tagline,
-      images: [recipe.image],
+      images: [fullImageUrl],
     },
   };
 }
