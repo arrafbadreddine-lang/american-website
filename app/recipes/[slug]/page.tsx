@@ -72,17 +72,26 @@ export default async function RecipePage({ params }: PageProps) {
     notFound();
   }
 
-  // Related recipes: Prioritize same copycat chain first for strong cluster linking, then category/appliance
-  const sameChain = recipe.copycatChainSlug
-    ? RECIPES.filter((r) => r.id !== recipe.id && r.copycatChainSlug === recipe.copycatChainSlug)
-    : [];
-  const sameCategoryOrAppliance = RECIPES.filter(
+  // Related recipes: Use a circular ring window around the current recipe so every recipe gets incoming internal links
+  const candidatePool = RECIPES.filter(
     (r) =>
-      r.id !== recipe.id &&
-      !sameChain.some((c) => c.id === r.id) &&
-      (r.category === recipe.category || r.appliance === recipe.appliance)
+      r.slug === recipe.slug ||
+      (recipe.copycatChainSlug && r.copycatChainSlug === recipe.copycatChainSlug) ||
+      r.category === recipe.category ||
+      r.appliance === recipe.appliance
   );
-  const relatedRecipes = [...sameChain, ...sameCategoryOrAppliance].slice(0, 3);
+  const currentIdxInPool = Math.max(0, candidatePool.findIndex((r) => r.slug === recipe.slug));
+  const rotatedCandidates: typeof RECIPES = [];
+  for (let offset = 1; offset < candidatePool.length; offset++) {
+    rotatedCandidates.push(candidatePool[(currentIdxInPool + offset) % candidatePool.length]);
+  }
+  const sameChainRotated = recipe.copycatChainSlug
+    ? rotatedCandidates.filter((r) => r.copycatChainSlug === recipe.copycatChainSlug)
+    : [];
+  const otherRotated = rotatedCandidates.filter(
+    (r) => !sameChainRotated.some((c) => c.slug === r.slug)
+  );
+  const relatedRecipes = [...sameChainRotated, ...otherRotated].slice(0, 6);
 
   // Generate Google Schema JSON-LD
   const recipeJsonLd = generateRecipeJsonLd({

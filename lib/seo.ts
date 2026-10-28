@@ -38,6 +38,7 @@ export function generateRecipeJsonLd(recipe: RecipeSchemaInput) {
     "@context": "https://schema.org/",
     "@type": "Recipe",
     name: recipe.title,
+    url: recipe.url,
     image: [fullImageUrl],
     author: {
       "@type": "Person",
@@ -73,6 +74,8 @@ export function generateRecipeJsonLd(recipe: RecipeSchemaInput) {
       "@type": "HowToStep",
       name: inst.title || `Step ${idx + 1}`,
       text: inst.text,
+      url: `${recipe.url}#step-${idx + 1}`,
+      image: fullImageUrl,
       position: idx + 1,
     })),
     mainEntityOfPage: {
@@ -86,6 +89,7 @@ export function generateBreadcrumbJsonLd(items: { name: string; url: string }[])
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
+    name: "Breadcrumbs",
     itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,

@@ -423,7 +423,8 @@ export default function RecipeDetailClient({
             {recipe.instructions.map((inst) => (
               <div
                 key={inst.step}
-                className="flex items-start gap-4 sm:gap-6 pb-6 border-b border-slate-100 last:border-0 last:pb-0"
+                id={`step-${inst.step}`}
+                className="flex items-start gap-4 sm:gap-6 pb-6 border-b border-slate-100 last:border-0 last:pb-0 scroll-mt-24"
               >
                 {/* Step Number Badge */}
                 <div className="w-10 h-10 rounded-2xl bg-brand-500 text-white font-display font-black text-lg flex items-center justify-center shrink-0 shadow-md">
