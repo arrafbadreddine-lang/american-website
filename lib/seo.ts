@@ -45,6 +45,7 @@ export function generateRecipeJsonLd(recipe: RecipeSchemaInput) {
       name: recipe.authorName || "Chef & Nutrition Team",
     },
     datePublished: recipe.datePublished || "2026-01-15",
+    dateModified: recipe.datePublished && recipe.datePublished > "2026-10-30" ? recipe.datePublished : "2026-10-30",
     description: recipe.description,
     prepTime: formatIsoDuration(recipe.prepTimeMinutes),
     cookTime: formatIsoDuration(recipe.cookTimeMinutes),

@@ -64,8 +64,9 @@ export async function GET() {
     <link>${baseUrl}</link>
     <description>Zero fluff, high-protein, air fryer, Ninja Creami, and restaurant copycat recipes with interactive timers and USDA nutrition facts.</description>
     <language>en-us</language>
-    <lastBuildDate>${lastBuildDate}</lastBuildDate>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${baseUrl}/feed.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://pubsubhubbub.appspot.com/" rel="hub" />
     <image>
       <url>${baseUrl}/logo.png</url>
       <title>ForkSavvy Recipes</title>

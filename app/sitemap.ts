@@ -63,10 +63,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // Recipe dynamic routes
+  // Recipe dynamic routes — use at least 2026-10-30 as lastModified since all recipe schemas & canonicals were updated
+  const schemaUpdateDate = "2026-10-30";
   const recipeRoutes: MetadataRoute.Sitemap = RECIPES.map((recipe) => ({
     url: `${baseUrl}/recipes/${recipe.slug}`,
-    lastModified: new Date(recipe.datePublished),
+    lastModified: new Date(
+      recipe.datePublished > schemaUpdateDate ? recipe.datePublished : schemaUpdateDate
+    ),
     changeFrequency: "weekly",
     priority: 0.8,
   }));
